@@ -1,27 +1,66 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+import * as cp from "child_process";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	// console.log('Congratulations, your extension "ta-eyes" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('ta-eyes.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('hiyaaa');
+const execShell = (cmd: string) =>
+	new Promise<string>((resolve, reject) => {
+		cp.exec(cmd, (err, out) => {
+			if (err) {
+				return reject(err);
+			}
+			return resolve(out);
+		});
 	});
 
-	context.subscriptions.push(disposable);
+interface Hint {
+	pattern: string;
+	message: string;
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+interface TaEyeTest {
+	name: string;
+	testCommand: string;
+	hints: Array<Hint>;
+}
+
+interface TaEyesConfig {
+	tests: Array<TaEyeTest>;
+}
+
+export function activate(context: vscode.ExtensionContext) {
+	let readHintConfig = vscode.commands.registerCommand('ta-eyes.readHintConfig', () => {
+		let f: string | null | undefined = vscode.workspace.getConfiguration('ta-eyes').get('patternFile');
+		if (f === null || typeof f === 'undefined') {
+			vscode.window.showErrorMessage("ta-eyes.patternFile is null or not defined");
+			return;
+		}
+		let config: TaEyesConfig = require(f);
+		console.log(config);
+	});
+
+	let useTaEyes = vscode.commands.registerCommand('ta-eyes.runTest', async () => {
+		let f: string | null | undefined = vscode.workspace.getConfiguration('ta-eyes').get('patternFile');
+		if (f === null || typeof f === 'undefined') {
+			vscode.window.showErrorMessage("ta-eyes.patternFile is null or not defined");
+			return;
+		}
+		let config: TaEyesConfig = require(f);
+		let testName = (await vscode.window.showQuickPick(config.tests.map(t => t.name)))![0];
+		let test = config.tests.find(t => t.name === testName)!;
+
+		let output: string;
+		let success = true;
+		try {
+			output = await execShell(test.testCommand);
+		} catch(e) {
+			let ee = e as cp.ExecException;
+			output = ee.message;
+		}
+
+		console.log(output);
+	});
+
+	context.subscriptions.push(readHintConfig);
+}
+
+export function deactivate() { }
