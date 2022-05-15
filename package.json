@@ -10,18 +10,22 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:ta-eyes.helloWorld"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "ta-eyes.readHintConfig",
-        "title": "Read hint configuration (JSON)"
+        "title": "TA Eyes: Read hint configuration"
       },
       {
         "command": "ta-eyes.runTest",
-        "title": "Run test with TA hints"
+        "title": "TA Eyes: Run test with TA hints"
+      },
+      {
+        "command": "ta-eyes.pwd",
+        "title": "TA Eyes: pwd"
       }
     ],
     "configuration": {

@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "basic",
+      "testCommand": "javac -cp \".:lib/*\" *.java && java -cp \".:lib/*\" MultiArrTest",
+      "hints": [
+        {
+          "pattern": "All passed.",
+          "message": "Congratulations!"
+        },
+        {
+          "pattern": "expected:<\\[I@.*?> but was:<\\[I@.*?>",
+          "message": "This occurs because you are trying to compare two arrays using assertEquals. Is there another assertion in JUnit that could be more appropriate for comparing arrays?"
+        }
+      ]
+    }
+  ]
+}
