@@ -1,5 +1,5 @@
 /** Multidimensional array 
- *  @author Zoe Plaxco
+ *  @author Zephyr Barkan
  */
 
 public class MultiArr {
